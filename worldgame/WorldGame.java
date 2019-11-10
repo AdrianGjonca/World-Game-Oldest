@@ -70,13 +70,6 @@ public class WorldGame{
             }
         }
 
-	for(entity creature : entities){
-            world[creature.x]    [creature.y]     = '║';
-            world[creature.x + 1][creature.y]     = ' ';
-            world[creature.x]    [creature.y + 1] = '☻';
-            world[creature.x + 1][creature.y + 1] = '*';
-        }
-
         //Draw World
 	for(int x=playerX-40; x<playerX + 40; x++){
             for(int y=playerY-40; y<playerY + 40; y++){
@@ -87,6 +80,10 @@ public class WorldGame{
                     g.drawString(""+world[x][y], sx*12, sy*12);
 		}
             } 
+        }
+        
+        for(entity creature : entities){
+            g.fillOval((creature.x - playerX + 20)*12, (-creature.y + playerY + 20)*12 - 24, 24, 24);
         }
         win.g.setColor(Color.yellow);
         win.g.fillRect(0, 0, 800, 600);
@@ -143,7 +140,7 @@ public class WorldGame{
     }
     public static void drawPlayer(){
         if(handy){
-            win.g.drawRect(228, 228, 24, 24);
+            win.g.fillRect(228, 228, 24, 24);
         }else{
             win.g.drawRect(228, 228, 24, 24);
         }
@@ -411,25 +408,27 @@ public class WorldGame{
                 }
             }
 
-            if(tile[(creature.x) / 2][(creature.y + bestX) / 2] == ' ' || tile[(creature.x) / 2][(creature.y + bestY) / 2] == spawnerT){
+            if(tile[(creature.x) / 2][(creature.y + bestY) / 2] == ' ' || tile[(creature.x) / 2][(creature.y + bestY) / 2] == spawnerT){
+                boolean a = true;
                 for(entity thing: entities){
                     if(creature.y + bestY == thing.y){
                         if(creature.x == thing.x){
-                            break;
+                            a = false;
                         }
                     }
                 }
-                creature.y += bestY;
+                if(a) creature.y += bestY;
             }
-            if(tile[(creature.x) / 2][(creature.y + bestX) / 2] == ' ' || tile[(creature.x) / 2][(creature.y + bestY) / 2] == spawnerT){
+            if(tile[(creature.x + bestX) / 2][(creature.y) / 2] == ' ' || tile[(creature.x + bestX) / 2][(creature.y) / 2] == spawnerT){
+                boolean a = true;
                 for(entity thing: entities){
                     if(creature.y == thing.y){
                         if(creature.x + bestX == thing.x){
-                            break;
+                            a = false;
                         }
                     }
                 }
-                creature.x += bestX;
+                if(a) creature.x += bestX;
             }
             ////Ai End
             creature.life += 1;
@@ -440,7 +439,7 @@ public class WorldGame{
         for(entity creature: remove){
             entities.remove(creature);
         }
-        if((int)((20 * Math.random()) + 1) == 1){
+        if((int)((10 * Math.random()) + 1) == 1){
             for (int x=(playerX / 2) - 40; x<(playerX / 2) + 40; x++) {
                 for (int y=(playerY / 2) - 40; y<(playerY / 2) + 40; y++) {
                     if(tile[x][y] == spawnerT){
