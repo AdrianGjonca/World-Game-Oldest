@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import static worldgame.WorldGame.*;
 
 /**
  *
@@ -34,22 +35,39 @@ public class Window extends JFrame implements KeyListener {
         panel.setBackground(Color.BLACK);
         g = this.getGraphics();
     }
-
+    
     @Override
     public void keyTyped(KeyEvent e) {
-        
+        if(!WorldGame.moving){
+            TakeTurn(e.getKeyChar());
+            Zombify();
+            update=true;
+            if(!level){
+                tile = tileU;
+                entities = entitiesU;
+            }else{
+                tile = tileO;
+                entities = entitiesO;
+            }
+            if(!level){
+                tileU = tile;
+                entitiesU = entities;
+            }else{
+                tileO = tile;
+                entitiesO = entities;
+            } 
+            SRender(e.getKeyChar());
+        }
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        Console.key = e.getKeyChar();
+        
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if(e.getKeyChar() == Console.key){
-            Console.key = '`';
-        }
+        
     }
 
 }

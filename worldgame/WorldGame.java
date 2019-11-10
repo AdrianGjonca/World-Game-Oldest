@@ -5,11 +5,17 @@
  */
 package worldgame;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.scene.text.Font;
 
 
 
@@ -40,14 +46,19 @@ public class WorldGame{
     static final char woodT = '♣';
 
     static final char spawnerT = '▲';
-
-    public static void Render(){
+    static String walkthrough = "╬~";
+    
+    public static Window win;
+    public static boolean moving = false;
+    public static boolean update = false;
+    
+    public static void SRender(char key){
+        BufferedImage toDraw = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) toDraw.getGraphics();
+        g.setBackground(Color.yellow);
+        g.setColor(Color.red);
         //Clear Screan
-	for(int x=0; x<40; x++){
-            for(int y=0; y<40; y++){
-                screen[x][y] = ' ';
-            }
-        }
+	g.clearRect(0, 0, 800, 600);
 
         //Process World
 	for(int x=playerX / 2 - 100; x<playerX / 2 + 100; x++){
@@ -73,57 +84,80 @@ public class WorldGame{
                 int sy = -y + playerY + 20;
 		if( sx > 0 && sx < 40 && sy > 0 && sy < 40){
                     screen[sx][sy] = world[x][y];
+                    g.drawString(""+world[x][y], sx*12, sy*12);
 		}
             } 
         }
-
-
-        //Draw Player
-        //¶⁋
-        //<>
-
-        if(handy){
-            screen[19][20] = '☺';
-            screen[20][20] = ' ';
-            screen[19][21] = '║';
-            screen[20][21] = '\\';
-        }else{
-            screen[19][20] = '☺';
-            screen[20][20] = '/';
-            screen[19][21] = '║';
-            screen[20][21] = ' ';
-        }
-
-
-        //Draw Screen
-        String data = "";
-        Console.Clear();
-		for(int y=0; y<40; y++){
-			for(int x=0; x<40; x++){
-                data += screen[x][y];
+        win.g.setColor(Color.yellow);
+        win.g.fillRect(0, 0, 800, 600);
+        win.g.setColor(Color.black);
+        moving = true;
+        if(key == 'w'){
+            for(int i = 0; i < 24; i++){
+                win.g.drawImage(toDraw, 0, -24+i, null);
+                drawPlayer();
+                try {
+                    Thread.sleep(3);
+                } catch (InterruptedException ex) {
+                }
             }
-            data += "\n";
+        }else if(key == 's'){
+            for(int i = 0; i < 24; i++){
+                win.g.drawImage(toDraw, 0, 24-i, null);
+                drawPlayer();
+                try {
+                    Thread.sleep(3);
+                } catch (InterruptedException ex) {
+                }
+            }
+        }else if(key == 'a'){
+            for(int i = 0; i < 24; i++){
+                win.g.drawImage(toDraw, -24+i, 0, null);
+                drawPlayer();
+                try {
+                    Thread.sleep(3);
+                } catch (InterruptedException ex) {
+                }
+            }
+        }else if(key == 'd'){
+            for(int i = 0; i < 24; i++){
+                win.g.drawImage(toDraw, 24-i, 0, null);
+                drawPlayer();
+                try {
+                    Thread.sleep(3);
+                } catch (InterruptedException ex) {
+                }
+            }
+        }else{
+            win.g.drawImage(toDraw, 0, 0, null);
+            drawPlayer();
+            for(int i = 0; i < 24; i++){
+                try {
+                    Thread.sleep(3);
+                } catch (InterruptedException ex) {
+                }
+            }
         }
-        Console.WriteLine(data);
-        Console.WriteLine("╔════════════════════╗");
-        Console.WriteLine("║ HP: " + health);
-        Console.WriteLine("╠════════════════════╣");
-        Console.WriteLine("║Iron: " + iron);
-        Console.WriteLine("║Copper: " + copper);
-        Console.WriteLine("║Wood: " + wood);
-        Console.WriteLine("║Stone: " + stone);
-        Console.WriteLine("╠════════════════════╣");
-        Console.WriteLine("║1: door  ╬  C:5 I:6 ║");
-        Console.WriteLine("║2: table ╥  C:5 I:4 ║");
-        Console.WriteLine("╚════════════════════╝");
-        Console.WriteLine(playerX + " " + playerY);
-        Console.CursorLeft = 0;
-        Console.CursorTop = 0;
+        drawPlayer();
+        moving = false;
     }
-
-    static String walkthrough = "╬~";
+    public static void drawPlayer(){
+        if(handy){
+            win.g.drawRect(228, 228, 24, 24);
+        }else{
+            win.g.drawRect(228, 228, 24, 24);
+        }
+        win.g.setColor(Color.lightGray);
+        win.g.fillRect(520, 50, 200, 400);
+        win.g.setColor(Color.black);
+        win.g.drawString("HP: "+health, 530, 70);
+        win.g.drawString("Iron: "+iron, 530, 70+12*1);
+        win.g.drawString("Copper: "+copper, 530, 70+12*2);
+        win.g.drawString("Wood: "+wood, 530, 70+12*3);
+        win.g.drawString("Stone: "+stone, 530, 70+12*4);
+    }
     
-    public static void TakeTurn(){
+    public static void TakeTurn(char key){
         if(health < 1){
             health = 10;
             playerY = 5009;
@@ -133,7 +167,6 @@ public class WorldGame{
             iron = 0;
             wood = 0;
         }
-        char key = Console.ReadKey();
         switch (key) {
             case 'a':
                 if(world[playerX - 3][playerY] == ' ' || walkthrough.contains(""+world[playerX - 3][playerY])){
@@ -279,7 +312,6 @@ public class WorldGame{
                 Save();
                 break;
         }
-        Console.SRefresh(key);
     }
     public static void Attack(char direction){
         int x1, x2, y1, y2;
@@ -339,67 +371,21 @@ public class WorldGame{
         }
     }
     public static void main(String [] args){
-        Console.init();
-        Console.Clear();
-        Console.WriteLine("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-        Console.WriteLine("▓ ▓▓▓ ▓▓ ▓▓   ▓▓ ▓▓▓   ▓▓▓  ▓▓▓ ▓▓  ▓  ▓   ▓");
-        Console.WriteLine("▓ ▓ ▓ ▓ ▓ ▓ ▓▓ ▓ ▓▓▓ ▓▓ ▓ ▓▓▓▓ ▓ ▓ ▓ ▓ ▓ ▓▓▓");
-        Console.WriteLine("▓ ▓ ▓ ▓ ▓ ▓   ▓▓ ▓▓▓ ▓▓ ▓ ▓  ▓   ▓ ▓▓▓ ▓ ▄▄▓");
-        Console.WriteLine("▓▓ ▓ ▓▓▓ ▓▓ ▓▓ ▓   ▓   ▓▓▓  ▓▓ ▓ ▓ ▓▓▓ ▓   ▓");
-        Console.WriteLine("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-        Console.WriteLine("▓By Adrian Gjonca▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-        Console.WriteLine("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-        Console.WriteLine("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
-        Console.WriteLine("░1)Continue░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
-        Console.WriteLine("░2)New Game░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
-        Console.WriteLine("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
-        Console.WriteLine("░3)Monochrome░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
-        Console.WriteLine("░4)Red 'n Black░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
-        Console.WriteLine("░5)MagenticYellow░░░░░░░░░░░░░░░░░░░░░░░░░░░");
-        Console.WriteLine("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
-        Console.WriteLine("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
-        Console.Refresh();
-        char input = Console.ReadKey();
-        Console.Refresh();
-        if(input == '1'){
-            Load();
-        }else{
-            WorldGen();
-        }
-        Console.Refresh();
-        //entities.Add(New entitiy)
-        tile = tileU;
+        win = new Window();
+        WorldGen();
         playerY = 5009;
         playerX = 5009;
         tile = tileO;
         entities = entitiesO;
         /////Main Loop
-        while(true){
-            long next = System.currentTimeMillis()+200;
-            Render();
-            //Console.Refresh();
-            TakeTurn();
-            Zombify();
-            if(!level){
-                tile = tileU;
-                entities = entitiesU;
-            }else{
-                tile = tileO;
-                entities = entitiesO;
-            }
-            if(!level){
-                tileU = tile;
-                entitiesU = entities;
-            }else{
-                tileO = tile;
-                entitiesO = entities;
-            }
-            while(next>System.currentTimeMillis());
+        while(true){       
+            update = false;
         }
         ///////End of Main loop
     }
 
     public static void Zombify(){
+        
         List<entity> remove = new ArrayList<entity>();
         for(entity creature: entities){
             ////Ai Start
@@ -454,7 +440,7 @@ public class WorldGame{
         for(entity creature: remove){
             entities.remove(creature);
         }
-        if((int)((20 * Math.random()) + 1) == '1'){
+        if((int)((20 * Math.random()) + 1) == 1){
             for (int x=(playerX / 2) - 40; x<(playerX / 2) + 40; x++) {
                 for (int y=(playerY / 2) - 40; y<(playerY / 2) + 40; y++) {
                     if(tile[x][y] == spawnerT){
@@ -469,22 +455,22 @@ public class WorldGame{
     }
 
     public static void WorldGen(){
-        Console.Clear();
-        Console.WriteLine("---Generating New World---");
-Console.Refresh();
+        //Console.Clear();
+        //Console.WriteLine("---Generating New World---");
+        //Console.Refresh();
 
         /////Caves
-        Console.WriteLine("---Underground---");
-        Console.WriteLine("Filling in stone...");
-        Console.Refresh();
+        //Console.WriteLine("---Underground---");
+        //Console.WriteLine("Filling in stone...");
+        //Console.Refresh();
         for(int x = 0; x<5000; x++){
             for(int y = 0; y<5000; y++){
                 tileU[x][y] = '▒';
             }
         }
 
-        Console.WriteLine("Generating cave systems...");
-        Console.Refresh();
+        //Console.WriteLine("Generating cave systems...");
+        //Console.Refresh();
         //Caves
         for(int x = 100; x<4900; x+=2){
             for(int y = 100; y<4900; y+=2){
@@ -517,9 +503,9 @@ Console.Refresh();
             }
         }
 
-        Console.WriteLine("Planting ores:");
-        Console.WriteLine("of iron...");
-        Console.Refresh();
+        //Console.WriteLine("Planting ores:");
+        //Console.WriteLine("of iron...");
+        //Console.Refresh();
         //Ores
         for(int x = 100; x<4900; x+=2){
             for(int y = 100; y<4900; y+=2){
@@ -548,8 +534,8 @@ Console.Refresh();
                 }
             }
         }
-        Console.WriteLine("of copper...");
-        Console.Refresh();
+        //Console.WriteLine("of copper...");
+        //Console.Refresh();
         for(int x = 100; x<4900; x+=2){
             for(int y = 100; y<4900; y+=2){
                 if((int)((60 * Math.random()) + 1) == 1){
@@ -578,8 +564,8 @@ Console.Refresh();
             }
         }
 
-        Console.WriteLine("Building house...");
-        Console.Refresh();
+        //Console.WriteLine("Building house...");
+        //Console.Refresh();
         //House
         for(int ax = 0; ax<9; ax++){
             for(int ay = 0; ay<9; ay++){
@@ -598,9 +584,9 @@ Console.Refresh();
 
 
         //////World
-        Console.WriteLine("---Overground---");
-        Console.WriteLine("Planting trees...");
-        Console.Refresh();
+        //Console.WriteLine("---Overground---");
+        //Console.WriteLine("Planting trees...");
+        //Console.Refresh();
         for(int x=0; x<5000; x++){
             for(int y=0; y<5000; y++){
                 tileO[x][y] = woodT;
@@ -608,8 +594,8 @@ Console.Refresh();
         }
 
         //Clearings
-        Console.WriteLine("Deforestation...");
-        Console.Refresh();
+        //Console.WriteLine("Deforestation...");
+        //Console.Refresh();
         for(int x = 100; x<4900; x+=2){
             for(int y = 100; y<4900; y+=2){
                 if((int)((30 * Math.random()) + 1) == 1){
@@ -655,8 +641,8 @@ Console.Refresh();
             }
         }
         //Lakes
-        Console.WriteLine("Lakes...");
-        Console.Refresh();
+        //Console.WriteLine("Lakes...");
+        //Console.Refresh();
         for(int x = 100; x<4900; x+=2){
             for(int y = 100; y<4900; y+=2){
                 if((int)((160 * Math.random()) + 1) == 1){
@@ -686,9 +672,9 @@ Console.Refresh();
 
 
         /////Structures
-        Console.WriteLine("---Structures---");
-        Console.WriteLine("Aincient Temples of Zomb...");
-        Console.Refresh();
+        //Console.WriteLine("---Structures---");
+        //Console.WriteLine("Aincient Temples of Zomb...");
+        //Console.Refresh();
         for(int i = 0; i<5000; i++){
             int sx = (int)((4500 * Math.random()) + 100);
             int sy = (int)((4500 * Math.random()) + 100);
@@ -700,8 +686,8 @@ Console.Refresh();
         }
         
         //House
-        Console.WriteLine("House...");
-        Console.Refresh();
+        //Console.WriteLine("House...");
+        //Console.Refresh();
         for(int ax = 0; ax<9; ax++){
             for(int ay = 0; ay<9; ay++){
                 tileO[2500 + ax][2500 + ay] = ' ';
@@ -714,9 +700,9 @@ Console.Refresh();
                 }
             }
         }
-        Console.WriteLine("---Finished---");
-        Console.Refresh();
-        Console.ReadKey();
+        //Console.WriteLine("---Finished---");
+        //Console.Refresh();
+        //Console.ReadKey();
     }
 
     public static void Save(){
