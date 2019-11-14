@@ -49,16 +49,15 @@ public class WorldGame{
     static String walkthrough = "╬~";
     
     public static Window win;
-    public static boolean moving = false;
-    public static boolean update = false;
     
     public static void SRender(char key){
-        BufferedImage toDraw = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
+        
+        BufferedImage toDraw = new BufferedImage(1200, 800, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) toDraw.getGraphics();
-        g.setBackground(Color.yellow);
+        g.setBackground(Color.black);
         g.setColor(Color.red);
         //Clear Screan
-	g.clearRect(0, 0, 800, 600);
+	g.clearRect(0, 0, 1200, 800);
 
         //Process World
 	for(int x=playerX / 2 - 100; x<playerX / 2 + 100; x++){
@@ -75,83 +74,126 @@ public class WorldGame{
             for(int y=playerY-40; y<playerY + 40; y++){
                 int sx = x - playerX + 20;
                 int sy = -y + playerY + 20;
-		if( sx > 0 && sx < 40 && sy > 0 && sy < 40){
+		if( sx > 0 && sx < 40 && sy > 0 && sy < 40 && sx % 2 == 0 && sy % 2 == 0){
                     screen[sx][sy] = world[x][y];
-                    g.drawString(""+world[x][y], sx*12, sy*12);
+                    g.drawString(""+world[x][y], sx*16, sy*16);
+                    TileConverter.draw(g, ""+world[x][y], sx*16, sy*16);
 		}
             } 
         }
         
         for(entity creature : entities){
-            g.fillOval((creature.x - playerX + 20)*12, (-creature.y + playerY + 20)*12 - 24, 24, 24);
+            g.fillOval((creature.x - playerX + 20)*16+16, (-creature.y + playerY + 20)*16 - 24, 32, 32);
         }
-        win.g.setColor(Color.yellow);
-        win.g.fillRect(0, 0, 800, 600);
-        win.g.setColor(Color.black);
-        moving = true;
+        BufferedImage im = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
+        Graphics2D gi = (Graphics2D) im.getGraphics();
+        
         if(key == 'w'){
-            for(int i = 0; i < 24; i++){
-                win.g.drawImage(toDraw, 0, -24+i, null);
-                drawPlayer();
+            for(int i = 0; i < 32; i++){
+                gi.drawImage(toDraw, 0, -32+i, null);
+                gi.clearRect(0, 0, 64, 800);
+                gi.clearRect(0, 0, 1200, 64);
+                gi.clearRect(0, 600, 1200, 800);
+                gi.clearRect(600, 0, 1200, 800);
+                gi.fillRect(320, 320-8, 32, 32);
+                drawUI(gi);
+                win.g.drawImage(im.getSubimage(72, 86, 600-72, 600-72), 0, 0,900,900, null);
                 try {
                     Thread.sleep(3);
                 } catch (InterruptedException ex) {
                 }
             }
         }else if(key == 's'){
-            for(int i = 0; i < 24; i++){
-                win.g.drawImage(toDraw, 0, 24-i, null);
-                drawPlayer();
+            for(int i = 0; i < 32; i++){
+                gi.drawImage(toDraw, 0, 32-i, null);
+                gi.clearRect(0, 0, 64, 800);
+                gi.clearRect(0, 0, 1200, 64);
+                gi.clearRect(0, 600, 1200, 800);
+                gi.clearRect(600, 0, 1200, 800);
+                gi.fillRect(320, 320-8, 32, 32);
+                drawUI(gi);
+                win.g.drawImage(im.getSubimage(72, 86, 600-72, 600-72), 0, 0,900,900, null);
                 try {
                     Thread.sleep(3);
                 } catch (InterruptedException ex) {
                 }
             }
         }else if(key == 'a'){
-            for(int i = 0; i < 24; i++){
-                win.g.drawImage(toDraw, -24+i, 0, null);
-                drawPlayer();
+            for(int i = 0; i < 32; i++){
+                gi.drawImage(toDraw, -32+i, 0, null);
+                gi.clearRect(0, 0, 64, 800);
+                gi.clearRect(0, 0, 1200, 64);
+                gi.clearRect(0, 600, 1200, 800);
+                gi.clearRect(600, 0, 1200, 800);
+                gi.fillRect(320, 320-8, 32, 32);
+                drawUI(gi);
+                win.g.drawImage(im.getSubimage(72, 86, 600-72, 600-72), 0, 0,900,900, null);
                 try {
                     Thread.sleep(3);
                 } catch (InterruptedException ex) {
                 }
             }
         }else if(key == 'd'){
-            for(int i = 0; i < 24; i++){
-                win.g.drawImage(toDraw, 24-i, 0, null);
-                drawPlayer();
+            for(int i = 0; i < 32; i++){
+                gi.drawImage(toDraw, 32-i, 0, null);
+                gi.clearRect(0, 0, 64, 800);
+                gi.clearRect(0, 0, 1200, 64);
+                gi.clearRect(0, 600, 1200, 800);
+                gi.clearRect(600, 0, 1200, 800);
+                gi.fillRect(320, 320-8, 32, 32);
+                drawUI(gi);
+                win.g.drawImage(im.getSubimage(72, 86, 600-72, 600-72), 0, 0,900,900, null);
                 try {
                     Thread.sleep(3);
                 } catch (InterruptedException ex) {
                 }
             }
         }else{
-            win.g.drawImage(toDraw, 0, 0, null);
-            drawPlayer();
-            for(int i = 0; i < 24; i++){
+            gi.drawImage(toDraw, 0, 0, null);
+            gi.clearRect(0, 0, 64, 800);
+            gi.clearRect(0, 0, 1200, 64);
+            gi.clearRect(0, 600, 1200, 800);
+            gi.clearRect(600, 0, 1200, 800);
+            gi.fillRect(320, 320-8, 32, 32);
+            drawUI(gi);
+            win.g.drawImage(im.getSubimage(72, 86, 600-72, 600-72), 0, 0,900,900, null);
+            for(int i = 0; i < 32; i++){
                 try {
                     Thread.sleep(3);
                 } catch (InterruptedException ex) {
                 }
             }
         }
-        drawPlayer();
-        moving = false;
     }
-    public static void drawPlayer(){
-        if(handy){
-            win.g.fillRect(228, 228, 24, 24);
-        }else{
-            win.g.drawRect(228, 228, 24, 24);
+    public static void drawUI(Graphics2D g){
+        g.setColor(Color.black);
+        g.fillRect(78, 110, 100, 150);
+        g.setColor(Color.red);
+        g.drawString("HP: "+health, 82, 124);
+        g.setColor(Color.white);
+        g.drawString("Iron: "+iron, 82, 124+12*1);//( )
+        g.drawString("Copper: "+copper, 82, 124+12*2);//(0)
+        g.drawString("Wood: "+wood, 82, 124+12*3);//(-)
+        g.drawString("Stone: "+stone, 82, 124+12*4);//(=)
+        g.setColor(Color.PINK);
+        g.drawString("[  ]", 138, 124+12*1);//( )
+        g.drawString("0", 140, 124+12*2);//(0)
+        g.drawString("-", 142, 124+12*3);//(-)
+        g.drawString("=", 140, 124+12*4);//(=)
+        if(iron >= 6 && copper >= 5){
+            g.setColor(Color.yellow);
+            g.drawString("Door", 82, 124+12*6);
+            g.setColor(Color.magenta);
+            g.drawString("1", 140, 124+12*6);
         }
-        win.g.setColor(Color.lightGray);
-        win.g.fillRect(520, 50, 200, 400);
-        win.g.setColor(Color.black);
-        win.g.drawString("HP: "+health, 530, 70);
-        win.g.drawString("Iron: "+iron, 530, 70+12*1);
-        win.g.drawString("Copper: "+copper, 530, 70+12*2);
-        win.g.drawString("Wood: "+wood, 530, 70+12*3);
-        win.g.drawString("Stone: "+stone, 530, 70+12*4);
+        if(iron >= 4 && copper >= 5){
+            g.setColor(Color.yellow);
+            g.drawString("Torch", 82, 124+12*7);
+            g.setColor(Color.magenta);
+            g.drawString("2", 140, 124+12*7);
+        }
+
+        g.setColor(Color.white);
     }
     
     public static void TakeTurn(char key){
@@ -369,15 +411,16 @@ public class WorldGame{
     }
     public static void main(String [] args){
         win = new Window();
+        win.g.setColor(Color.white);
+        win.g.drawString("Generating World. Please wait...", 10, 10);
         WorldGen();
         playerY = 5009;
         playerX = 5009;
         tile = tileO;
         entities = entitiesO;
+        SRender('q');
         /////Main Loop
-        while(true){       
-            update = false;
-        }
+        
         ///////End of Main loop
     }
 
@@ -566,8 +609,8 @@ public class WorldGame{
         //Console.WriteLine("Building house...");
         //Console.Refresh();
         //House
-        for(int ax = 0; ax<9; ax++){
-            for(int ay = 0; ay<9; ay++){
+        for(int ax = 0; ax<10; ax++){
+            for(int ay = 0; ay<10; ay++){
                 tileU[2500 + ax][2500 + ay] = ' ';
                 if(ax == 0 || ax == 9){
                     tileU[2500 + ax][2500 + ay] = '▓';
@@ -677,8 +720,8 @@ public class WorldGame{
         for(int i = 0; i<5000; i++){
             int sx = (int)((4500 * Math.random()) + 100);
             int sy = (int)((4500 * Math.random()) + 100);
-            for(int ax = 0; ax<11; ax++){
-                for(int ay = 0; ay<9; ay++){
+            for(int ax = 0; ax<12; ax++){
+                for(int ay = 0; ay<10; ay++){
                     tileO[sx + ay][sy + -ax] = Dungeons.AincientDungeon[ax][ay].charAt(0);
                 }
             }
@@ -687,8 +730,8 @@ public class WorldGame{
         //House
         //Console.WriteLine("House...");
         //Console.Refresh();
-        for(int ax = 0; ax<9; ax++){
-            for(int ay = 0; ay<9; ay++){
+        for(int ax = 0; ax<10; ax++){
+            for(int ay = 0; ay<10; ay++){
                 tileO[2500 + ax][2500 + ay] = ' ';
                 if(ax == 0 || ax == 9){
                     tileO[2500 + ax][2500 + ay] = '▓';

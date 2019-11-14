@@ -24,7 +24,7 @@ public class Window extends JFrame implements KeyListener {
     public Graphics g;
     
     public Window() {
-        this.setSize(800, 600);
+        this.setSize(900, 800);
         this.setResizable(false);
         this.setName("World Game");
         this.setVisible(true);
@@ -34,14 +34,24 @@ public class Window extends JFrame implements KeyListener {
         this.add(panel);
         panel.setBackground(Color.BLACK);
         g = this.getGraphics();
+        
     }
     
     @Override
     public void keyTyped(KeyEvent e) {
-        if(!WorldGame.moving){
+        
+    }
+    
+    public char lastkey = 'q';
+    public boolean moving = false;
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if(moving == false){
+            moving = true;
+            lastkey = e.getKeyChar();
+            
             TakeTurn(e.getKeyChar());
             Zombify();
-            update=true;
             if(!level){
                 tile = tileU;
                 entities = entitiesU;
@@ -57,17 +67,13 @@ public class Window extends JFrame implements KeyListener {
                 entitiesO = entities;
             } 
             SRender(e.getKeyChar());
+            
         }
     }
 
     @Override
-    public void keyPressed(KeyEvent e) {
-        
-    }
-
-    @Override
     public void keyReleased(KeyEvent e) {
-        
+        if(lastkey == e.getKeyChar()) moving = false;
     }
 
 }
