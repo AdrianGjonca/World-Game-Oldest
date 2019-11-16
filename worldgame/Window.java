@@ -50,7 +50,11 @@ public class Window extends JFrame implements KeyListener {
             moving = true;
             lastkey = e.getKeyChar();
             
-            TakeTurn(e.getKeyChar());
+            if(e.getKeyCode() != KeyEvent.VK_BACK_SPACE){
+                TakeTurn(e.getKeyChar());
+            }else{
+                TakeTurn('%');
+            }
             Zombify();
             if(!level){
                 tile = tileU;
