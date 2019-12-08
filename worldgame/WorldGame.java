@@ -47,7 +47,7 @@ public class WorldGame {
     static final char woodT = '♣';
 
     static final char spawnerT = '▲';
-    static String walkthrough = "╬~";
+    static String walkthrough = "╬~#";
 
     public static Window win;
 
@@ -227,6 +227,12 @@ public class WorldGame {
             g.setColor(Color.magenta);
             g.drawString("2", 140, 124 + 12 * 7);
         }
+        if (wood >= 1) {
+            g.setColor(Color.yellow);
+            g.drawString("Flooring", 82, 124 + 12 * 8);
+            g.setColor(Color.magenta);
+            g.drawString("3", 140, 124 + 12 * 8);
+        }
 
         g.setColor(Color.white);
     }
@@ -276,6 +282,12 @@ public class WorldGame {
                     stone -= 2;
                 }
                 break;
+            case '3':
+                if (wood >= 1) {
+                    tile[(playerX - 1) / 2][(playerY - 1) / 2] = '#';
+                    wood -= 1;
+                }
+                break;
             case ' ':
                 if (iron > 0) {
                     tile[(playerX - 1) / 2][(playerY - 1) / 2] = ironT;
@@ -308,7 +320,7 @@ public class WorldGame {
                 break;
             case 'j':
                 Attack('j');
-                if (tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] != '~') {
+                if (tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] != '~' && tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] != '#') {
                     if (tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] == ironT) {
                         iron += 1;
                     }
@@ -327,7 +339,7 @@ public class WorldGame {
                 break;
             case 'l':
                 Attack('l');
-                if (tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] != '~') {
+                if (tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] != '~' && tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] != '#') {
                     if (tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] == ironT) {
                         iron += 1;
                     }
@@ -346,7 +358,7 @@ public class WorldGame {
                 break;
             case 'i':
                 Attack('i');
-                if (tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] != '~') {
+                if (tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] != '~' && tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] != '#') {
                     if (tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] == ironT) {
                         iron += 1;
                     }
@@ -365,7 +377,7 @@ public class WorldGame {
                 break;
             case 'k':
                 Attack('k');
-                if (tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] != '~') {
+                if (tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] != '~' && tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] != '#') {
                     if (tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] == ironT) {
                         iron += 1;
                     }
@@ -498,7 +510,7 @@ public class WorldGame {
                 }
             }
 
-            if (tile[(creature.x) / 2][(creature.y + bestY) / 2] == ' ' || tile[(creature.x) / 2][(creature.y + bestY) / 2] == spawnerT) {
+            if (tile[(creature.x) / 2][(creature.y + bestY) / 2] == ' ' || tile[(creature.x) / 2][(creature.y + bestY) / 2] == '#') {
                 boolean a = true;
                 for (entity thing : entities) {
                     if (creature.y + bestY == thing.y) {
@@ -511,7 +523,7 @@ public class WorldGame {
                     creature.y += bestY;
                 }
             }
-            if (tile[(creature.x + bestX) / 2][(creature.y) / 2] == ' ' || tile[(creature.x + bestX) / 2][(creature.y) / 2] == spawnerT) {
+            if (tile[(creature.x + bestX) / 2][(creature.y) / 2] == ' ' || tile[(creature.x + bestX) / 2][(creature.y) / 2] == '#') {
                 boolean a = true;
                 for (entity thing : entities) {
                     if (creature.y == thing.y) {
@@ -662,7 +674,7 @@ public class WorldGame {
         //House
         for (int ax = 0; ax < 10; ax++) {
             for (int ay = 0; ay < 10; ay++) {
-                tileU[2500 + ax][2500 + ay] = ' ';
+                tileU[2500 + ax][2500 + ay] = '#';
                 if (ax == 0 || ax == 9) {
                     tileU[2500 + ax][2500 + ay] = '%';
                 } else if (ay == 0 && ax != 5 && ax != 4) {
@@ -778,7 +790,7 @@ public class WorldGame {
         //Console.Refresh();
         for (int ax = 0; ax < 10; ax++) {
             for (int ay = 0; ay < 10; ay++) {
-                tileO[2500 + ax][2500 + ay] = ' ';
+                tileO[2500 + ax][2500 + ay] = '#';
                 if (ax == 0 || ax == 9) {
                     tileO[2500 + ax][2500 + ay] = '%';
                 } else if (ay == 0 && ax != 5 && ax != 4) {

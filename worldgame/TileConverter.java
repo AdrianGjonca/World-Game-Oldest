@@ -21,8 +21,15 @@ import javax.imageio.ImageIO;
  */
 public class TileConverter {
 
-    public static BufferedImage tileset = load();
-
+    public static BufferedImage tileset = load1();
+    private static BufferedImage load1() {
+        try {
+            return tileset = ImageIO.read(new File(TileConverter.class.getResource("Tileset.png").getFile()));
+        } catch (IOException ex) {
+            return null;
+        }
+    }
+    
     public static BufferedImage col(BufferedImage a, int bright) {
         BufferedImage i = new BufferedImage(a.getWidth(), a.getHeight(), BufferedImage.TYPE_INT_RGB);
         for(int x=0; x<a.getWidth(); x++){
@@ -46,14 +53,6 @@ public class TileConverter {
         }
         g.fillRect(0, 0, i.getWidth(), i.getHeight());
         return i;
-    }
-
-    public static BufferedImage load() {
-        try {
-            return tileset = ImageIO.read(new File(TileConverter.class.getResource("Tileset.png").getFile()));
-        } catch (IOException ex) {
-            return null;
-        }
     }
 
     public static void draw(Graphics2D g, String t, int x, int y, int light) {
@@ -91,6 +90,9 @@ public class TileConverter {
         }
         if (t.charAt(a) == '%') {
             g.drawImage(col(tileset.getSubimage(16 * 10, 0, 16, 16), light), x, y - 8, 32, 32, null);
+        }
+        if (t.charAt(a) == '#') {
+            g.drawImage(col(tileset.getSubimage(16 * 11, 0, 16, 16), light), x, y - 8, 32, 32, null);
         }
     }
 }
