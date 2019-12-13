@@ -22,7 +22,7 @@ public class Window extends JFrame implements KeyListener {
 
     public JPanel panel = new JPanel();
     public Graphics g;
-    
+
     public Window() {
         this.setSize(900, 800);
         this.setResizable(false);
@@ -34,50 +34,52 @@ public class Window extends JFrame implements KeyListener {
         this.add(panel);
         panel.setBackground(Color.BLACK);
         g = this.getGraphics();
-        
+
     }
-    
+
     @Override
     public void keyTyped(KeyEvent e) {
-        
+
     }
-    
+
     public char lastkey = 'q';
-    public boolean moving = false;
+    //public boolean moving = false;
+    public long lasttime = System.currentTimeMillis();
+
     @Override
     public void keyPressed(KeyEvent e) {
-        if(moving == false){
-            moving = true;
-            lastkey = e.getKeyChar();
-            
-            if(e.getKeyCode() != KeyEvent.VK_BACK_SPACE){
+        if (System.currentTimeMillis() > lasttime + 10 || e.getKeyChar() != lastkey) {
+            //System.out.println(moving);
+            //moving = true;
+            if (e.getKeyCode() != KeyEvent.VK_BACK_SPACE) {
                 TakeTurn(e.getKeyChar());
-            }else{
+            } else {
                 TakeTurn('%');
             }
             Zombify();
-            if(!level){
+            if (!level) {
                 tile = tileU;
                 entities = entitiesU;
-            }else{
+            } else {
                 tile = tileO;
                 entities = entitiesO;
             }
-            if(!level){
+            if (!level) {
                 tileU = tile;
                 entitiesU = entities;
-            }else{
+            } else {
                 tileO = tile;
                 entitiesO = entities;
-            } 
+            }
             SRender(e.getKeyChar());
-            
+            lastkey = e.getKeyChar();
+            lasttime = System.currentTimeMillis();
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if(lastkey == e.getKeyChar()) moving = false;
+        //if(lastkey == e.getKeyChar()) moving = false;
     }
 
 }

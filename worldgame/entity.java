@@ -13,4 +13,5 @@ public class entity {
     public int x;
     public int y;
     public int life = 0;
+    public int direction = 0;
 }

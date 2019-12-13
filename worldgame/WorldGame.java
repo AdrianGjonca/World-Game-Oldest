@@ -35,6 +35,7 @@ public class WorldGame {
     static int[][] light = new int[10000][10000];
 
     static boolean handy = true;
+    static int direction = 0;
 
     static List<entity> entitiesO = new ArrayList<>();
     static List<entity> entitiesU = new ArrayList<>();
@@ -90,13 +91,11 @@ public class WorldGame {
                             lighter(x + ax, y + ay, (((radi - Math.abs(Math.abs(radi - ay) - radi)) + (radi - Math.abs(Math.abs(radi - ax) - radi))) / 2) * 2);
                         }
                     }
-
                 } else {
 
                 }
             }
         }
-
         //Draw World
         for (int x = playerX - 40; x < playerX + 40; x++) {
             for (int y = playerY - 40; y < playerY + 40; y++) {
@@ -117,68 +116,89 @@ public class WorldGame {
         }
 
         for (entity creature : entities) {
-            g.fillOval((creature.x - playerX + 20) * 16 + 16, (-creature.y + playerY + 20) * 16 - 24, 32, 32);
+            //g.fillOval((creature.x - playerX + 20) * 16 + 16, (-creature.y + playerY + 20) * 16 - 24, 32, 32);
+            if (!level) {
+                TileConverter.drawPlayer(g, creature.direction, (creature.x - playerX + 20) * 16 + 16, (-creature.y + playerY + 20) * 16 - 16, light[creature.x][creature.y]);
+            } else {
+                TileConverter.drawPlayer(g, creature.direction, (creature.x - playerX + 20) * 16 + 16, (-creature.y + playerY + 20) * 16 - 16, 15);
+            }
         }
         BufferedImage im = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
         Graphics2D gi = (Graphics2D) im.getGraphics();
 
         if (key == 'w') {
-            for (int i = 0; i < 32; i++) {
+            for (int i = 0; i < 32; i += 2) {
                 gi.drawImage(toDraw, 0, -32 + i, null);
                 gi.clearRect(0, 0, 64, 800);
                 gi.clearRect(0, 0, 1200, 64);
                 gi.clearRect(0, 600, 1200, 800);
                 gi.clearRect(600, 0, 1200, 800);
-                gi.fillRect(320, 320 - 8, 32, 32);
+                if (!level) {
+                    TileConverter.drawPlayer(gi, direction, 320, 320, light[playerX][playerY]);
+                } else {
+                    TileConverter.drawPlayer(gi, direction, 320, 320, 15);
+                }
                 drawUI(gi);
                 win.g.drawImage(im.getSubimage(72, 86, 600 - 72, 600 - 72), 0, 0, 900, 900, null);
                 try {
-                    Thread.sleep(3);
+                    Thread.sleep(6);
                 } catch (InterruptedException ex) {
                 }
             }
         } else if (key == 's') {
-            for (int i = 0; i < 32; i++) {
+            for (int i = 0; i < 32; i += 2) {
                 gi.drawImage(toDraw, 0, 32 - i, null);
                 gi.clearRect(0, 0, 64, 800);
                 gi.clearRect(0, 0, 1200, 64);
                 gi.clearRect(0, 600, 1200, 800);
                 gi.clearRect(600, 0, 1200, 800);
-                gi.fillRect(320, 320 - 8, 32, 32);
+                if (!level) {
+                    TileConverter.drawPlayer(gi, direction, 320, 320, light[playerX][playerY]);
+                } else {
+                    TileConverter.drawPlayer(gi, direction, 320, 320, 15);
+                }
                 drawUI(gi);
                 win.g.drawImage(im.getSubimage(72, 86, 600 - 72, 600 - 72), 0, 0, 900, 900, null);
                 try {
-                    Thread.sleep(3);
+                    Thread.sleep(6);
                 } catch (InterruptedException ex) {
                 }
             }
         } else if (key == 'a') {
-            for (int i = 0; i < 32; i++) {
+            for (int i = 0; i < 32; i += 2) {
                 gi.drawImage(toDraw, -32 + i, 0, null);
                 gi.clearRect(0, 0, 64, 800);
                 gi.clearRect(0, 0, 1200, 64);
                 gi.clearRect(0, 600, 1200, 800);
                 gi.clearRect(600, 0, 1200, 800);
-                gi.fillRect(320, 320 - 8, 32, 32);
+                if (!level) {
+                    TileConverter.drawPlayer(gi, direction, 320, 320, light[playerX][playerY]);
+                } else {
+                    TileConverter.drawPlayer(gi, direction, 320, 320, 15);
+                }
                 drawUI(gi);
                 win.g.drawImage(im.getSubimage(72, 86, 600 - 72, 600 - 72), 0, 0, 900, 900, null);
                 try {
-                    Thread.sleep(3);
+                    Thread.sleep(6);
                 } catch (InterruptedException ex) {
                 }
             }
         } else if (key == 'd') {
-            for (int i = 0; i < 32; i++) {
+            for (int i = 0; i < 32; i += 2) {
                 gi.drawImage(toDraw, 32 - i, 0, null);
                 gi.clearRect(0, 0, 64, 800);
                 gi.clearRect(0, 0, 1200, 64);
                 gi.clearRect(0, 600, 1200, 800);
                 gi.clearRect(600, 0, 1200, 800);
-                gi.fillRect(320, 320 - 8, 32, 32);
+                if (!level) {
+                    TileConverter.drawPlayer(gi, direction, 320, 320, light[playerX][playerY]);
+                } else {
+                    TileConverter.drawPlayer(gi, direction, 320, 320, 15);
+                }
                 drawUI(gi);
                 win.g.drawImage(im.getSubimage(72, 86, 600 - 72, 600 - 72), 0, 0, 900, 900, null);
                 try {
-                    Thread.sleep(3);
+                    Thread.sleep(6);
                 } catch (InterruptedException ex) {
                 }
             }
@@ -188,16 +208,33 @@ public class WorldGame {
             gi.clearRect(0, 0, 1200, 64);
             gi.clearRect(0, 600, 1200, 800);
             gi.clearRect(600, 0, 1200, 800);
-            gi.fillRect(320, 320 - 8, 32, 32);
+            if (!level) {
+                TileConverter.drawPlayer(gi, direction, 320, 320, light[playerX][playerY]);
+            } else {
+                TileConverter.drawPlayer(gi, direction, 320, 320, 15);
+            }
             drawUI(gi);
             win.g.drawImage(im.getSubimage(72, 86, 600 - 72, 600 - 72), 0, 0, 900, 900, null);
-            for (int i = 0; i < 32; i++) {
+            for (int i = 0; i < 32; i += 2) {
                 try {
-                    Thread.sleep(3);
+                    Thread.sleep(6);
                 } catch (InterruptedException ex) {
                 }
             }
         }
+        gi.drawImage(toDraw, 0, 0, null);
+        gi.clearRect(0, 0, 64, 800);
+        gi.clearRect(0, 0, 1200, 64);
+        gi.clearRect(0, 600, 1200, 800);
+        gi.clearRect(600, 0, 1200, 800);
+        if (!level) {
+            TileConverter.drawPlayer(gi, direction, 320, 320, light[playerX][playerY]);
+        } else {
+            TileConverter.drawPlayer(gi, direction, 320, 320, 15);
+        }
+        drawUI(gi);
+        win.g.drawImage(im.getSubimage(72, 86, 600 - 72, 600 - 72), 0, 0, 900, 900, null);
+
     }
 
     public static void drawUI(Graphics2D g) {
@@ -252,21 +289,25 @@ public class WorldGame {
                 if (world[playerX - 3][playerY] == ' ' || walkthrough.contains("" + world[playerX - 3][playerY])) {
                     playerX -= 2;
                 }
+                direction = 2;
                 break;
             case 'd':
                 if (world[playerX + 2][playerY] == ' ' || walkthrough.contains("" + world[playerX + 2][playerY])) {
                     playerX += 2;
                 }
+                direction = 3;
                 break;
             case 'w':
                 if (world[playerX][playerY + 2] == ' ' || walkthrough.contains("" + world[playerX][playerY + 2])) {
                     playerY += 2;
                 }
+                direction = 0;
                 break;
             case 's':
                 if (world[playerX][playerY - 3] == ' ' || walkthrough.contains("" + world[playerX][playerY - 3])) {
                     playerY -= 2;
                 }
+                direction = 1;
                 break;
             case '1':
                 if (wood >= 6 && iron >= 2) {
@@ -490,23 +531,20 @@ public class WorldGame {
             if (Math.abs(difX) > Math.abs(difY)) {
                 if (playerX < creature.x) {
                     bestX -= 2;
+                    creature.direction = 2;
                 }
                 if (playerX > creature.x) {
                     bestX += 2;
+                    creature.direction = 3;
                 }
             } else {
                 if (playerY < creature.y) {
                     bestY -= 2;
+                    creature.direction = 1;
                 }
                 if (playerY > creature.y) {
                     bestY += 2;
-                }
-            }
-
-            if (Math.abs(playerY - creature.y) < 2 && Math.abs(playerX - creature.x) < 2) {
-                if (tile[(playerX - 1) / 2][(playerY - 1) / 2] == ' ') {
-                    remove.add(creature);
-                    health -= 1;
+                    creature.direction = 2;
                 }
             }
 
@@ -534,6 +572,13 @@ public class WorldGame {
                 }
                 if (a) {
                     creature.x += bestX;
+                }
+            }
+
+            if (Math.abs(playerY - creature.y) < 2 && Math.abs(playerX - creature.x) < 2) {
+                if (tile[(playerX - 1) / 2][(playerY - 1) / 2] == ' ') {
+                    remove.add(creature);
+                    health -= 1;
                 }
             }
             ////Ai End

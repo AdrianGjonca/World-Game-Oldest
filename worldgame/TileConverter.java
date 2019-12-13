@@ -22,16 +22,25 @@ import javax.imageio.ImageIO;
 public class TileConverter {
 
     public static BufferedImage tileset = load1();
+    public static BufferedImage pTilest = load2();
     private static BufferedImage load1() {
         try {
-            return tileset = ImageIO.read(new File(TileConverter.class.getResource("Tileset.png").getFile()));
+            return ImageIO.read(new File(TileConverter.class.getResource("Tileset.png").getFile()));
+        } catch (IOException ex) {
+            return null;
+        }
+    }
+    
+    private static BufferedImage load2() {
+        try {
+            return ImageIO.read(new File(TileConverter.class.getResource("Player.png").getFile()));
         } catch (IOException ex) {
             return null;
         }
     }
     
     public static BufferedImage col(BufferedImage a, int bright) {
-        BufferedImage i = new BufferedImage(a.getWidth(), a.getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage i = new BufferedImage(a.getWidth(), a.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for(int x=0; x<a.getWidth(); x++){
             for(int y=0; y<a.getWidth(); y++){
                 i.setRGB(x, y, a.getRGB(x, y));
@@ -94,5 +103,15 @@ public class TileConverter {
         if (t.charAt(a) == '#') {
             g.drawImage(col(tileset.getSubimage(16 * 11, 0, 16, 16), light), x, y - 8, 32, 32, null);
         }
+    }
+    
+    public static void drawPlayer(Graphics2D g, int d, int x, int y, int light){
+        g.drawImage(col(pTilest.getSubimage(16*d, 0, 16, 16), light), x, y - 8, 32, 32, null); 
+        System.out.println(pTilest.getRGB(0, 0));
+    }
+    
+    public static void drawZombie(Graphics2D g, int d, int x, int y, int light){
+        g.drawImage(col(pTilest.getSubimage(16*d, 0, 16, 16), light), x, y - 8, 32, 32, null); 
+        System.out.println(pTilest.getRGB(0, 0));
     }
 }
