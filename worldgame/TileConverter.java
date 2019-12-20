@@ -103,11 +103,19 @@ public class TileConverter {
         if (t.charAt(a) == '#') {
             g.drawImage(col(tileset.getSubimage(16 * 11, 0, 16, 16), light), x, y - 8, 32, 32, null);
         }
+        if (t.charAt(a) == '¦') {
+            g.drawImage(col(tileset.getSubimage(16 * 12, 0, 16, 16), light), x, y - 8, 32, 32, null);
+        }
+        if (t.charAt(a) == 'G') {
+            g.drawImage(col(tileset.getSubimage(16 * 13, 0, 16, 16), light), x, y - 8, 32, 32, null);
+        }
+        if (t.charAt(a) == '"') {
+            g.drawImage(col(tileset.getSubimage(16 * 14, 0, 16, 16), light), x, y - 8, 32, 32, null);
+        }
     }
     
     public static void drawPlayer(Graphics2D g, int d, int x, int y, int light){
         g.drawImage(col(pTilest.getSubimage(16*d, 0, 16, 16), light), x, y - 8, 32, 32, null); 
-        System.out.println(pTilest.getRGB(0, 0));
     }
     
     public static void drawZombie(Graphics2D g, int d, int x, int y, int light){

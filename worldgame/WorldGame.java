@@ -22,10 +22,8 @@ public class WorldGame {
     static int playerX = 0;
     static int playerY = 0;
     static int health = 10;
-    static int iron = 0;
-    static int copper = 0;
-    static int wood = 0;
-    static int stone = 0;
+    static Inventory inventory = new Inventory();
+    
     static char[][] screen = new char[40][40];
     static char[][] tileU = new char[5000][5000];
     static char[][] tileO = new char[5000][5000];
@@ -41,6 +39,10 @@ public class WorldGame {
     static List<entity> entitiesU = new ArrayList<>();
     static List<entity> entities = new ArrayList<>();
 
+    static List<chest> chestsO = new ArrayList<>();
+    static List<chest> chestsU = new ArrayList<>();
+    static List<chest> chests = new ArrayList<>();    
+    
     static boolean level = true;
 
     static final char ironT = '▓';
@@ -121,6 +123,14 @@ public class WorldGame {
                 TileConverter.drawPlayer(g, creature.direction, (creature.x - playerX + 20) * 16 + 16, (-creature.y + playerY + 20) * 16 - 16, light[creature.x][creature.y]);
             } else {
                 TileConverter.drawPlayer(g, creature.direction, (creature.x - playerX + 20) * 16 + 16, (-creature.y + playerY + 20) * 16 - 16, 15);
+            }
+        }
+        for (chest box : chests) {
+            //g.fillOval((creature.x - playerX + 20) * 16 + 16, (-creature.y + playerY + 20) * 16 - 24, 32, 32);
+            if (!level) {
+                TileConverter.draw(g, "" + '¦', (box.x - playerX + 20) * 16 + 16, (-box.y + playerY + 20) * 16 - 16, light[box.x][box.y]);
+            } else {
+                TileConverter.draw(g, "" + '¦', (box.x - playerX + 20) * 16 + 16, (-box.y + playerY + 20) * 16 - 16, 15);
             }
         }
         BufferedImage im = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
@@ -239,36 +249,40 @@ public class WorldGame {
 
     public static void drawUI(Graphics2D g) {
         g.setColor(Color.black);
-        g.fillRect(78, 110, 100, 150);
+        g.fillRect(78, 110, 100, 170);
         g.setColor(Color.red);
         g.drawString("HP: " + health, 82, 124);
         g.setColor(Color.white);
-        g.drawString("Iron: " + iron, 82, 124 + 12 * 1);//( )
-        g.drawString("Copper: " + copper, 82, 124 + 12 * 2);//(0)
-        g.drawString("Wood: " + wood, 82, 124 + 12 * 3);//(-)
-        g.drawString("Stone: " + stone, 82, 124 + 12 * 4);//(=)
+        g.drawString("Iron: " + inventory.iron, 82, 124 + 12 * 1);//( )
+        g.drawString("Copper: " + inventory.copper, 82, 124 + 12 * 2);//(0)
+        g.drawString("Wood: " + inventory.wood, 82, 124 + 12 * 3);//(-)
+        g.drawString("Stone: " + inventory.stone, 82, 124 + 12 * 4);//(=)
+        g.drawString("Coal: " + inventory.coal, 82, 124 + 12 * 5);//(])
+        g.drawString("Clay: " + inventory.clay, 82, 124 + 12 * 6);//(])
         g.setColor(Color.PINK);
         g.drawString("[  ]", 140, 124 + 12 * 1);//( )
         g.drawString("[0]", 140, 124 + 12 * 2);//(0)
         g.drawString("[=/Bk]", 140, 124 + 12 * 3);//(-)
         g.drawString("[-]", 140, 124 + 12 * 4);//(=)
-        if (wood >= 6 && iron >= 2) {
+        g.drawString("[#]", 140, 124 + 12 * 5);//(])
+        g.drawString("[ ] ]", 140, 124 + 12 * 6);//(])
+        if (inventory.wood >= 6 && inventory.iron >= 2) {
             g.setColor(Color.yellow);
-            g.drawString("Door", 82, 124 + 12 * 6);
+            g.drawString("Door", 82, 124 + 12 * 9);
             g.setColor(Color.magenta);
-            g.drawString("1", 140, 124 + 12 * 6);
+            g.drawString("1", 140, 124 + 12 * 9);
         }
-        if (wood >= 4 && stone >= 2) {
+        if (inventory.wood >= 4 && inventory.stone >= 2) {
             g.setColor(Color.yellow);
-            g.drawString("Torch", 82, 124 + 12 * 7);
+            g.drawString("Torch", 82, 124 + 12 * 10);
             g.setColor(Color.magenta);
-            g.drawString("2", 140, 124 + 12 * 7);
+            g.drawString("2", 140, 124 + 12 * 10);
         }
-        if (wood >= 1) {
+        if (inventory.wood >= 1) {
             g.setColor(Color.yellow);
-            g.drawString("Flooring", 82, 124 + 12 * 8);
+            g.drawString("Flooring", 82, 124 + 12 * 11);
             g.setColor(Color.magenta);
-            g.drawString("3", 140, 124 + 12 * 8);
+            g.drawString("3", 140, 124 + 12 * 11);
         }
 
         g.setColor(Color.white);
@@ -279,10 +293,7 @@ public class WorldGame {
             health = 10;
             playerY = 5009;
             playerX = 5009;
-            stone = 0;
-            copper = 0;
-            iron = 0;
-            wood = 0;
+            inventory.clear();
         }
         switch (key) {
             case 'a':
@@ -310,69 +321,108 @@ public class WorldGame {
                 direction = 1;
                 break;
             case '1':
-                if (wood >= 6 && iron >= 2) {
+                if (inventory.wood >= 6 && inventory.iron >= 2) {
                     tile[(playerX - 1) / 2][(playerY - 1) / 2] = '╬';
-                    iron -= 2;
-                    wood -= 6;
+                    inventory.iron -= 2;
+                    inventory.wood -= 6;
                 }
                 break;
             case '2':
-                if (wood >= 4 && stone >= 2) {
+                if (inventory.wood >= 4 && inventory.stone >= 2) {
                     tile[(playerX - 1) / 2][(playerY - 1) / 2] = '╥';
-                    wood -= 4;
-                    stone -= 2;
+                    inventory.wood -= 4;
+                    inventory.stone -= 2;
                 }
                 break;
             case '3':
-                if (wood >= 1) {
+                if (inventory.wood >= 1) {
                     tile[(playerX - 1) / 2][(playerY - 1) / 2] = '#';
-                    wood -= 1;
+                    inventory.wood -= 1;
+                }
+                break;
+            case '4':
+                boolean hasChestAlready = false;
+                for(chest box : chests){
+                    if(box.x == playerX-1 && box.y == playerY-1){
+                        hasChestAlready = true;
+                    }
+                }
+                if(hasChestAlready){
+                    System.out.println("NOPE!!");
+                }else{
+                    chests.add(new chest(playerX-1, playerY-1));
+                }
+                break;
+            case 'q':
+                for(chest box : chests){
+                    if(box.x == playerX-1 && box.y == playerY-1){
+                        HasChestOpen = true;
+                        Invetory(box);
+                    }
                 }
                 break;
             case ' ':
-                if (iron > 0) {
+                if (inventory.iron > 0) {
                     tile[(playerX - 1) / 2][(playerY - 1) / 2] = ironT;
-                    iron -= 1;
+                    inventory.iron -= 1;
                 }
                 break;
             case '0':
-                if (copper > 0) {
+                if (inventory.copper > 0) {
                     tile[(playerX - 1) / 2][(playerY - 1) / 2] = copperT;
-                    copper -= 1;
+                    inventory.copper -= 1;
                 } //▒
                 break;
             case '-':
-                if (stone > 0) {
+                if (inventory.stone > 0) {
                     tile[(playerX - 1) / 2][(playerY - 1) / 2] = '▒';
-                    stone -= 1;
+                    inventory.stone -= 1;
+                }
+                break;
+            case '#':
+                if (inventory.coal > 0) {
+                    tile[(playerX - 1) / 2][(playerY - 1) / 2] = 'G';
+                    inventory.coal -= 1;
+                }
+                break;
+            case ']':
+                if (inventory.clay > 0) {
+                    tile[(playerX - 1) / 2][(playerY - 1) / 2] = '"';
+                    inventory.clay -= 1;
                 }
                 break;
             case '=':
-                if (wood > 0) {
+                if (inventory.wood > 0) {
                     tile[(playerX - 1) / 2][(playerY - 1) / 2] = woodT;
-                    wood -= 1;
+                    inventory.wood -= 1;
                 }
                 break;
             case '%':
-                if (wood > 0) {
+                if (inventory.wood > 0) {
                     tile[(playerX - 1) / 2][(playerY - 1) / 2] = '%';
-                    wood -= 1;
+                    inventory.wood -= 1;
                 }
                 break;
             case 'j':
                 Attack('j');
                 if (tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] != '~' && tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] != '#') {
                     if (tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] == ironT) {
-                        iron += 1;
+                        inventory.iron += 1;
                     }
                     if (tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] == copperT) {
-                        copper += 1;
+                        inventory.copper += 1;
                     }
                     if (tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] == woodT || tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] == '%') {
-                        wood += 1;
+                        inventory.wood += 1;
                     }
                     if (tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] == '▒') {
-                        stone += 1;
+                        inventory.stone += 1;
+                    }
+                    if (tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] == 'G') {
+                        inventory.coal += 1;
+                    }
+                    if (tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] == '"') {
+                        inventory.clay += 1;
                     }
                     tile[(playerX - 1) / 2 - 1][(playerY - 1) / 2] = ' ';
                 }
@@ -382,16 +432,22 @@ public class WorldGame {
                 Attack('l');
                 if (tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] != '~' && tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] != '#') {
                     if (tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] == ironT) {
-                        iron += 1;
+                        inventory.iron += 1;
                     }
                     if (tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] == copperT) {
-                        copper += 1;
+                        inventory.copper += 1;
                     }
                     if (tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] == woodT || tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] == '%') {
-                        wood += 1;
+                        inventory.wood += 1;
                     }
                     if (tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] == '▒') {
-                        stone += 1;
+                        inventory.stone += 1;
+                    }
+                    if (tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] == 'G') {
+                        inventory.coal += 1;
+                    }
+                    if (tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] == '"') {
+                        inventory.clay += 1;
                     }
                     tile[(playerX - 1) / 2 + 1][(playerY - 1) / 2] = ' ';
                 }
@@ -401,16 +457,22 @@ public class WorldGame {
                 Attack('i');
                 if (tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] != '~' && tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] != '#') {
                     if (tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] == ironT) {
-                        iron += 1;
+                        inventory.iron += 1;
                     }
                     if (tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] == copperT) {
-                        copper += 1;
+                        inventory.copper += 1;
                     }
                     if (tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] == woodT || tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] == '%') {
-                        wood += 1;
+                        inventory.wood += 1;
                     }
                     if (tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] == '▒') {
-                        stone += 1;
+                        inventory.stone += 1;
+                    }
+                    if (tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] == 'G') {
+                        inventory.coal += 1;
+                    }
+                    if (tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] == '"') {
+                        inventory.clay += 1;
                     }
                     tile[(playerX - 1) / 2][(playerY - 1) / 2 + 1] = ' ';
                 }
@@ -420,22 +482,25 @@ public class WorldGame {
                 Attack('k');
                 if (tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] != '~' && tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] != '#') {
                     if (tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] == ironT) {
-                        iron += 1;
+                        inventory.iron += 1;
                     }
                     if (tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] == copperT) {
-                        copper += 1;
+                        inventory.copper += 1;
                     }
                     if (tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] == woodT || tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] == '%') {
-                        wood += 1;
+                        inventory.wood += 1;
                     }
                     if (tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] == '▒') {
-                        stone += 1;
+                        inventory.stone += 1;
+                    }
+                    if (tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] == 'G') {
+                        inventory.coal += 1;
+                    }
+                    if (tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] == '"') {
+                        inventory.clay += 1;
                     }
                     tile[(playerX - 1) / 2][(playerY - 1) / 2 - 1] = ' ';
                 }
-                handy = !handy;
-                break;
-            case 'q':
                 handy = !handy;
                 break;
             case 'e':
@@ -485,16 +550,16 @@ public class WorldGame {
                 if (creature.y > playerY + y1 && creature.y < playerY + y2) {
                     remove.add(creature);
                     if ((int) ((3 * Math.random()) + 1) == 1) {
-                        wood += 1;
+                        inventory.wood += 1;
                     }
                     if ((int) ((4 * Math.random()) + 1) == 1) {
-                        stone += 1;
+                        inventory.stone += 1;
                     }
                     if ((int) ((12 * Math.random()) + 1) == 1) {
-                        copper += 1;
+                        inventory.copper += 1;
                     }
                     if ((int) ((15 * Math.random()) + 1) == 1) {
-                        iron += 1;
+                        inventory.iron += 1;
                     }
                 }
             }
@@ -503,7 +568,48 @@ public class WorldGame {
             entities.remove(creature);
         }
     }
-
+    
+    public static boolean HasChestOpen = false;
+    public static int INVENTORY_X = 0;
+    public static chest INVENTORY_CHEST = null;
+    public static void Invetory(chest box) {
+        BufferedImage toDraw = new BufferedImage(200, 103, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) toDraw.getGraphics();
+        g.setBackground(new Color(104,68,46));
+        g.setColor(Color.gray);
+        g.clearRect(0, 0, 1200, 800);
+        g.drawString("To remove this chest press [P]", 1, 100);
+        g.drawString("(q)", 1, 11);
+        g.setColor(Color.lightGray);
+        g.drawString("Iron: ", 10, 29);
+        g.drawString("Copper: ", 10, 39);
+        g.drawString("Wood: ", 10, 49);
+        g.drawString("Stone: ", 10, 59);
+        g.drawString("Coal: ", 10, 69);
+        g.drawString("Clay: ", 10, 79);
+        
+        g.setColor(Color.gray);
+        g.drawString(box.inventory.iron + "", 60, 29);
+        g.drawString(box.inventory.copper + "", 60, 39);
+        g.drawString(box.inventory.wood + "", 60, 49);
+        g.drawString(box.inventory.stone + "", 60, 59);
+        g.drawString(box.inventory.coal + "", 60, 69);
+        g.drawString(box.inventory.clay + "", 60, 79);
+        
+        g.setColor(Color.cyan);
+        g.drawString(inventory.iron + "", 80, 29);
+        g.drawString(inventory.copper + "", 80, 39);
+        g.drawString(inventory.wood + "", 80, 49);
+        g.drawString(inventory.stone + "", 80, 59);
+        g.drawString(inventory.coal + "", 80, 69);
+        g.drawString(inventory.clay + "", 80, 79);
+        
+        g.setColor(Color.GREEN);
+        g.drawString(">", 1, 29 + INVENTORY_X*10);
+        win.g.drawImage(toDraw, 150, 200, 200*3,103*3, null);
+        INVENTORY_CHEST = box;
+    }
+        
     public static void main(String[] args) {
         win = new Window();
         win.g.setColor(Color.white);
@@ -547,7 +653,14 @@ public class WorldGame {
                     creature.direction = 2;
                 }
             }
-
+            
+            if (Math.abs(playerY - creature.y) < 2 && Math.abs(playerX - creature.x) < 2) {
+                if (tile[(playerX - 1) / 2][(playerY - 1) / 2] == ' ') {
+                    remove.add(creature);
+                    health -= 1;
+                }
+            }
+            
             if (tile[(creature.x) / 2][(creature.y + bestY) / 2] == ' ' || tile[(creature.x) / 2][(creature.y + bestY) / 2] == '#') {
                 boolean a = true;
                 for (entity thing : entities) {
@@ -574,13 +687,8 @@ public class WorldGame {
                     creature.x += bestX;
                 }
             }
-
-            if (Math.abs(playerY - creature.y) < 2 && Math.abs(playerX - creature.x) < 2) {
-                if (tile[(playerX - 1) / 2][(playerY - 1) / 2] == ' ') {
-                    remove.add(creature);
-                    health -= 1;
-                }
-            }
+            
+            
             ////Ai End
             creature.life += 1;
             if (creature.life > 500) {
@@ -619,20 +727,25 @@ public class WorldGame {
             }
         }
 
-        //Console.WriteLine("Generating cave systems...");
+        //Console.WriteLine("Planting ores:");
+        //Console.WriteLine("of iron...");
         //Console.Refresh();
-        //Caves
+        //Ores
         for (int x = 100; x < 4900; x += 2) {
             for (int y = 100; y < 4900; y += 2) {
                 if ((int) ((60 * Math.random()) + 1) == 1) {
                     int ax = 0;
                     int ay = 0;
                     while ((int) ((10 * Math.random()) + 1) != 1) {
-                        tileU[x + ax][y + ay] = ' ';
-                        tileU[x + ax + 1][y + ay] = ' ';
-                        tileU[x + ax - 1][y + ay] = ' ';
-                        tileU[x + ax][y + ay + 1] = ' ';
-                        tileU[x + ax][y + ay - 1] = ' ';
+                        tileU[x + ax][y + ay] = 'G';
+                        tileU[x + ax + 1][y + ay] = 'G';
+                        tileU[x + ax - 1][y + ay] = 'G';
+                        tileU[x + ax][y + ay + 1] = 'G';
+                        tileU[x + ax][y + ay - 1] = 'G';
+                        tileU[x + ax + 1][y + ay + 1] = 'G';
+                        tileU[x + ax - 1][y + ay - 1] = 'G';
+                        tileU[x + ax - 1][y + ay + 1] = 'G';
+                        tileU[x + ax + 1][y + ay - 1] = 'G';
                         if ((int) ((2 * Math.random()) + 1) == 1) {
                             ax += 1;
                         } else {
@@ -644,25 +757,47 @@ public class WorldGame {
                             ay -= 1;
                         }
 
-                        if ((int) ((20 * Math.random()) + 1) == 1) {
-                            tileU[x][y] = spawnerT;
+                    }
+                }
+            }
+        }
+        for (int x = 100; x < 4900; x += 2) {
+            for (int y = 100; y < 4900; y += 2) {
+                if ((int) ((60 * Math.random()) + 1) == 1) {
+                    int ax = 0;
+                    int ay = 0;
+                    while ((int) ((10 * Math.random()) + 1) != 1) {
+                        tileU[x + ax][y + ay] = '"';
+                        tileU[x + ax + 1][y + ay] = '"';
+                        tileU[x + ax - 1][y + ay] = '"';
+                        tileU[x + ax][y + ay + 1] = '"';
+                        tileU[x + ax][y + ay - 1] = '"';
+                        tileU[x + ax + 1][y + ay + 1] = '"';
+                        tileU[x + ax - 1][y + ay - 1] = '"';
+                        tileU[x + ax - 1][y + ay + 1] = '"';
+                        tileU[x + ax + 1][y + ay - 1] = '"';
+                        if ((int) ((2 * Math.random()) + 1) == 1) {
+                            ax += 1;
+                        } else {
+                            ax -= 1;
+                        }
+                        if ((int) ((2 * Math.random()) + 1) == 1) {
+                            ay += 1;
+                        } else {
+                            ay -= 1;
                         }
 
                     }
                 }
             }
         }
-
-        //Console.WriteLine("Planting ores:");
-        //Console.WriteLine("of iron...");
-        //Console.Refresh();
-        //Ores
+        
         for (int x = 100; x < 4900; x += 2) {
             for (int y = 100; y < 4900; y += 2) {
-                if ((int) ((60 * Math.random()) + 1) == 1) {
+                if ((int) ((180 * Math.random()) + 1) == 1) {
                     int ax = 0;
                     int ay = 0;
-                    while ((int) ((6 * Math.random()) + 1) != 1) {
+                    while ((int) ((4 * Math.random()) + 1) != 1) {
                         tileU[x + ax][y + ay] = ironT;
                         tileU[x + ax + 1][y + ay] = ironT;
                         tileU[x + ax - 1][y + ay] = ironT;
@@ -688,10 +823,10 @@ public class WorldGame {
         //Console.Refresh();
         for (int x = 100; x < 4900; x += 2) {
             for (int y = 100; y < 4900; y += 2) {
-                if ((int) ((60 * Math.random()) + 1) == 1) {
+                if ((int) ((180 * Math.random()) + 1) == 1) {
                     int ax = 0;
                     int ay = 0;
-                    while ((int) ((6 * Math.random()) + 1) != 1) {
+                    while ((int) ((5 * Math.random()) + 1) != 1) {
                         tileU[x + ax][y + ay] = copperT;
                         tileU[x + ax + 1][y + ay] = copperT;
                         tileU[x + ax - 1][y + ay] = copperT;
@@ -714,6 +849,55 @@ public class WorldGame {
             }
         }
 
+        //Console.WriteLine("Generating cave systems...");
+        //Console.Refresh();
+        //Caves
+        for (int x = 100; x < 4900; x += 2) {
+            for (int y = 100; y < 4900; y += 2) {
+                if ((int) ((60 * Math.random()) + 1) == 1) {
+                    int ax = 0;
+                    int ay = 0;
+                    while ((int) ((10 * Math.random()) + 1) != 1) {
+                        
+                        tileU[x + ax][y + ay] = ' ';
+                        tileU[x + ax + 1][y + ay] = ' ';
+                        tileU[x + ax - 1][y + ay] = ' ';
+                        tileU[x + ax][y + ay + 1] = ' ';
+                        tileU[x + ax][y + ay - 1] = ' ';
+                        //System.out.println(tileO[x + ax][y + ay]);
+                        tileU[x + ax + 1][y + ay + 1] = ' ';
+                        tileU[x + ax - 1][y + ay + 1] = ' ';
+                        tileU[x + ax + 1][y + ay - 1] = ' ';
+                        tileU[x + ax - 1][y + ay - 1] = ' ';
+
+                        tileU[x + ax + 2][y + ay] = ' ';
+                        tileU[x + ax - 2][y + ay] = ' ';
+                        tileU[x + ax][y + ay + 2] = ' ';
+                        tileU[x + ax][y + ay - 2] = ' ';
+
+                        tileU[x + ax + 2][y + ay + 1] = ' ';
+                        tileU[x + ax - 2][y + ay - 1] = ' ';
+                        tileU[x + ax + 1][y + ay + 2] = ' ';
+                        tileU[x + ax - 1][y + ay - 2] = ' ';
+
+                        if ((int) ((2 * Math.random()) + 1) == 1) {
+                            ax += 1;
+                        } else {
+                            ax -= 1;
+                        }
+
+                        if ((int) ((2 * Math.random()) + 1) == 1) {
+                            ay += 1;
+                        } else {
+                            ay -= 1;
+                        }
+                        if ((int) ((20 * Math.random()) + 1) == 1) {
+                            tileU[x][y] = spawnerT;
+                        }
+                    }
+                }
+            }
+        }
         //Console.WriteLine("Building house...");
         //Console.Refresh();
         //House
@@ -795,7 +979,7 @@ public class WorldGame {
                 if ((int) ((160 * Math.random()) + 1) == 1) {
                     int ax = 0;
                     int ay = 0;
-                    while ((int) ((9 * Math.random()) + 1) != 1) {
+                    while ((int) ((10 * Math.random()) + 1) != 1) {
                         tileO[x + ax][y + ay] = '~';
                         tileO[x + ax + 1][y + ay] = '~';
                         tileO[x + ax - 1][y + ay] = '~';
@@ -857,4 +1041,6 @@ public class WorldGame {
     public static void Load() {
 
     }
+
+
 }
